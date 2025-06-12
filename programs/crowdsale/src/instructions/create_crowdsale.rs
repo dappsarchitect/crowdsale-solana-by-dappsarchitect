@@ -23,3 +23,52 @@ pub fn create_crowdsale(ctx: Context<CreateCrowdsale>, id: Pubkey, cost: u32) ->
     msg!("Crowdsale created!");
     Ok(())
 }
+
+#[derive(Accounts)]
+#[instruction(id: Pubkey)]
+pub struct CreateCrowdsale<'info> {
+    #[account(
+        init,
+        payer = creator,
+        space = 8 + Crowdsale::MAXIMUM_SIZE,
+        seeds = [
+            id.as_ref(),
+        ],
+        bump,
+    )]
+    pub crowdsale: Account<'info, Crowdsale>,
+
+    pub mint_account: Account<'info, Mint>,
+
+    // We create the token account for the crowdsale
+    // The creator pays for the token account creation
+    // This will be tied to the mint_account & crowdsale authority
+    #[account(
+        init,
+        payer = creator,
+        associated_token::mint = mint_account,
+        associated_token::authority = crowdsale_authority,
+    )]
+    pub token_account: Account<'info, TokenAccount>,
+
+    // Check: Read only authority
+    // This will allow our crowdsale to transfer tokens
+    #[account(
+        seeds = [
+            id.as_ref(),
+            AUTHORITY_SEED
+        ],
+        bump,
+    )]
+    pub crowdsale_authority: AccountInfo<'info>,
+
+    // The account signing and paying
+    #[account(mut)]
+    pub creator: Signer<'info>,
+
+    // Solana ecosystem accounts; official on-chain programs to interact with
+    // e.g. SPL token
+    pub token_program: Program<'info, Token>,
+    pub associated_token_program: Program<'info, AssociatedToken>,
+    pub system_program: Program<'info, System>,
+}
