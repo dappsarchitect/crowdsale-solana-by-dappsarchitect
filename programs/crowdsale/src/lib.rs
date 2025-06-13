@@ -19,9 +19,9 @@ pub mod crowdsale {
     }
 
     // For user to buy tokens
+    pub fn buy_tokens(ctx: Context<BuyTokens>, amount: u32) -> Result<()> {
+        instructions::buy_tokens(ctx, amount)
+    }
 
     // For user to withdraw SOL 
 }
-
-#[derive(Accounts)]
-pub struct Initialize {}
