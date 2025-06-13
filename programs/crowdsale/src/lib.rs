@@ -24,4 +24,7 @@ pub mod crowdsale {
     }
 
     // For user to withdraw SOL 
+    pub fn withdraw(ctx: Context<Withdraw>) -> Result<()> {
+        instructions::withdraw(ctx)
+    }
 }
